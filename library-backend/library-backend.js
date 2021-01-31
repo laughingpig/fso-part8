@@ -1,3 +1,4 @@
+require('dotenv').config()
 const { ApolloServer, ValidationError, AuthenticationError, gql } = require('apollo-server')
 const { v1: uuid } = require('uuid')
 const mongoose = require('mongoose')
@@ -6,9 +7,9 @@ const Book = require('./models/book')
 const User = require('./models/user')
 const jwt = require('jsonwebtoken')
 
-const JWT_SECRET = 'As!$fcdfsd2rh5opkpo'
+const JWT_SECRET = process.env.JWT_SECRET
 
-const MONGODB_URI = 'mongodb+srv://part4user:lM7B5VR6qwLSXKA4@cluster0.jbl68.mongodb.net/booklist?retryWrites=true&w=majority'
+const MONGODB_URI = process.env.MONGO_URI
 console.log('connecting to', MONGODB_URI)
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
   .then(() => {
