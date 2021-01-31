@@ -5,7 +5,7 @@ import {ALL_AUTHORS, ADD_YEAR} from '../query'
 
 const Authors = (props) => {
   const authors = useQuery(ALL_AUTHORS)
-  const [author, setAuthor] = useState('')
+  const [id, setId] = useState('')
   const [born, setBorn] = useState('')
 
   const [addYear] = useMutation(ADD_YEAR, {
@@ -17,8 +17,12 @@ const Authors = (props) => {
 
   const handleSubmit = event => {
     event.preventDefault()
-    addYear({variables: {author, born}})
-    setAuthor('')
+    if(!id || !born){
+      props.showError('Input error')
+      return null
+    }
+    addYear({variables: {id, born}})
+    setId('')
     setBorn('')
   }
 
@@ -28,6 +32,38 @@ const Authors = (props) => {
 
   if(authors.loading) {
     return <>Loading</>
+  }
+
+  if(authors.error){
+    props.showError(authors.error)
+    return null
+  }
+
+  let addform = null
+  if(props.token) {
+  addform =
+    (
+      <>
+        <br />
+        <h3>Set birthyear</h3>
+        <form onSubmit={handleSubmit}>
+          <div>
+            author<br />
+            <select value={id} onChange={({target}) => setId(target.value)}>
+              <option>Select...</option>
+              {authors.data.allAuthors.map(auth => 
+                <option value={auth.id} key={auth.id}>{auth.name}</option>
+              )}
+            </select>
+          </div>    
+          <div>
+            born<br />
+            <input type="text" name="born" value={born} onChange={({target}) => setBorn(parseInt(target.value))} />
+          </div>
+          <button>Submit</button>
+        </form>
+      </>
+    )
   }
 
   return (
@@ -53,24 +89,7 @@ const Authors = (props) => {
           )}
         </tbody>
       </table>
-
-      <br />
-      <h3>Set birthyear</h3>
-      <form onSubmit={handleSubmit}>
-        <div>
-          author<br />
-          <select value={author} onChange={({target}) => setAuthor(target.value)}>
-            {authors.data.allAuthors.map(auth => 
-              <option value={auth.name}>{auth.name}</option>
-            )}
-          </select>
-        </div>    
-        <div>
-          born<br />
-          <input type="text" name="born" value={born} onChange={({target}) => setBorn(parseInt(target.value))} />
-        </div>
-        <button>Submit</button>
-      </form>
+      {addform}
     </div>
   )
 }
